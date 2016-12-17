@@ -1,0 +1,22 @@
+---
+
+- name: enable postgresql
+  service: >
+    name=postgresql
+    enabled=yes
+    runlevel=default
+    state=started
+  tags: postgresql
+
+- name: Create database
+  postgresql_db: > 
+    login_user={{ db_user }}
+    name={{ db_name }}
+    owner={{ db_user }}
+    encoding='UTF-8'
+    lc_collate='en_US.UTF-8'
+    lc_ctype='en_US.UTF-8'
+    state=present
+  become: yes
+  become_user: vagrant
+  tags: create_db

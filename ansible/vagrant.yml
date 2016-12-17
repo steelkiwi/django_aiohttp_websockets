@@ -1,0 +1,22 @@
+---
+- name: Configure box
+
+  hosts: all
+  become: yes
+  become_user: root
+  remote_user: vagrant
+  vars:
+    - update_apt_cache: yes
+  vars_files:
+    - vars/vagrant.yml
+
+  roles:
+    - { role: mysql, when: "mysql == true" }
+    - { role: apache, when: "apache == true" }
+    - { role: nginx, when: "nginx == true" }
+    - { role: postgresql, when: "postgresql == true" }
+    - { role: rabbitmq, when: "rabbitmq == true" }
+    - { role: redis, when: "redis == true" }
+    - { role: supervisor, when: "supervisor == true" }
+    - { role: app, when: "app == true" }
+

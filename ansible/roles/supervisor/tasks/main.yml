@@ -1,0 +1,9 @@
+---
+
+- name: enable supervisor
+  service: >
+    name=supervisor
+    enabled=yes
+    runlevel=default
+    state=started
+  tags: supervisor

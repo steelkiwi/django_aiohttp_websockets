@@ -1,0 +1,9 @@
+---
+
+- name: enable nginx
+  service: >
+    name=nginx
+    enabled=yes
+    runlevel=default
+    state=started
+  tags: nginx

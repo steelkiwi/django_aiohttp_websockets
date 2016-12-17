@@ -1,0 +1,9 @@
+---
+
+- name: enable rabbitmq
+  service: >
+    name=rabbitmq-server
+    enabled=yes
+    runlevel=default
+    state=started
+  tags: rabbitmq

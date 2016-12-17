@@ -1,0 +1,14 @@
+---
+
+- name: Create python virtual environment
+  pip: >
+    name={{ item }}
+    virtualenv="{{ virtualenv_path }}"
+    virtualenv_python="/usr/local/bin/python{{ python_version }}"
+    state=latest
+  with_items:
+    - pip
+    - setuptools
+  become: yes
+  become_user: vagrant
+

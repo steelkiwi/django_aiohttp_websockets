@@ -1,0 +1,9 @@
+---
+
+- name: enable redis-server
+  service: >
+    name=redis-server
+    enabled=yes
+    runlevel=default
+    state=started
+  tags: redis

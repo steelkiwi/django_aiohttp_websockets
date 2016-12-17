@@ -1,0 +1,30 @@
+---
+project_name: django_aiohttp_websockets
+application_name: django_aiohttp_websockets
+
+
+# Database settings.
+db_user: "vagrant"
+db_name: "{{ application_name }}"
+db_password: ""
+
+# Application settings.
+virtualenv_path: "/home/vagrant/venv"
+project_path: "/vagrant"
+requirements_file: "{{ project_path }}/requirements/local.txt"
+django_settings_path: "{{ project_path }}/config"
+django_settings: "config.settings"
+
+
+#Python version - change if you needed
+python_version: 3
+
+# Services
+mysql: no
+apache: no
+nginx: no
+postgresql: true
+rabbitmq: no
+redis: true
+supervisor: no
+app: true
