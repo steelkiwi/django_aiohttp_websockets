@@ -73,6 +73,7 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'django_aiohttp_websockets.users',
     'django_aiohttp_websockets.chat',
+    'django_aiohttp_websockets.websockets',
 )
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
