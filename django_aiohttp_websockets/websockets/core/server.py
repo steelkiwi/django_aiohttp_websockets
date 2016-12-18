@@ -6,7 +6,7 @@ import random
 import aioredis
 from aiohttp import web, WSCloseCode
 
-from django_aiohttp_websockets.websockets.core import views, settings
+from django_aiohttp_websockets.websockets.core import views, settings, utils
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class WSApplication(web.Application):
                 try:
                     raw_msg = await channel.get()
                     msg = json.loads(raw_msg.decode('utf-8'))
-                    # process message here
+                    await self.process_worker_response(msg)
 
                 except (json.JSONDecodeError, ValueError, Exception) as e:
                     self.logger.error('Exception while processing redis msg: %s', e)
@@ -93,3 +93,40 @@ class WSApplication(web.Application):
         self.websockets[ws]['messages_ids'].append(msg_id)
         self.logger.debug('[%s] Publish message with id \'%s\' to topic \'%s\'', id(ws), msg_id, publish_topic)
         await self.redis_publisher.publish_json(publish_topic, msg)
+
+    def _find_ws_by_message_uuid(self, msg_uuid):
+        for ws, ws_data in self.websockets.items():
+            if msg_uuid in ws_data.get('messages_ids', []):
+                return ws
+
+    def _find_ws_by_send_to(self, send_to):
+        websockets = []
+        for ws, ws_data in self.websockets.items():
+            if ws_data.get('session_data', {}).get('user_pk') in send_to:
+                websockets.append(ws)
+        return websockets
+
+    def _update_session(self, ws, response_msg):
+        if response_msg.get('session_data'):
+            self.websockets[ws]['session_data'] = response_msg['session_data']
+
+    async def process_worker_response(self, response_msg):
+        response = response_msg['response']
+        msg_uuid = response['uuid']
+        send_to = response_msg.get('send_to')
+        self.logger.debug('Processing response for msg with id \'%s\'', msg_uuid)
+
+        ws = self._find_ws_by_message_uuid(msg_uuid)
+        if response_msg['type'] == utils.ERROR_RESPONSE_TYPE:
+            if ws:
+                ws.send_str(json.dumps(response))
+
+        elif response_msg['type'] == utils.SUCCESS_RESPONSE_TYPE:
+            self._update_session(ws, response_msg)
+            if not send_to:
+                if ws:
+                    ws.send_str(json.dumps(response))
+            else:
+                websockets = self._find_ws_by_send_to(send_to)
+                for ws in websockets:
+                    ws.send_str(json.dumps(response))
